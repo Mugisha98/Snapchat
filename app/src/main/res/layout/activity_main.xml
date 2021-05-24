@@ -6,58 +6,88 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
+    <TextView
+        android:id="@+id/SnapApp"
+        android:layout_width="153dp"
+        android:layout_height="46dp"
+        android:text="SnapAPP"
+        android:textAlignment="center"
+        android:textColor="#FF0000"
+        android:textSize="24sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.059" />
 
     <ImageView
-        android:id="@+id/ShowImageView"
-        android:layout_width="fill_parent"
-        android:layout_height="200dp"
-        android:layout_marginBottom="26dp"
+        android:id="@+id/imageView"
+        android:layout_width="253dp"
+        android:layout_height="242dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.146" />
+        app:layout_constraintVertical_bias="0.233"
+         />
 
     <Button
-        android:id="@+id/ButtonChooseImage"
-        android:layout_width="fill_parent"
+        android:id="@+id/profil"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/ShowImageView"
-        android:layout_marginBottom="28dp"
-        android:text="Choose Image"
+        android:layout_marginStart="16dp"
+        android:layout_marginBottom="24dp"
+        android:backgroundTint="#2196F3"
+        android:onClick="onClick"
+        android:shadowColor="#CD1212"
+        android:text="Profil"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.418" />
+        app:rippleColor="#C52E2E" />
 
-    <EditText
-        android:id="@+id/ImageNameEditText"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/ButtonChooseImage"
-        android:gravity="center"
-        android:hint="Enter Image Name Here"
+    <ListView
+        android:id="@+id/listView1"
+        android:layout_width="222dp"
+        android:layout_height="187dp"
+        android:background="#6DE6766E"
+        android:cacheColorHint="#FFFFFF"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.543" />
+        app:layout_constraintVertical_bias="0.799" />
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="221dp"
+        android:layout_height="30dp"
+        android:fontFamily="casual"
+        android:text="Nye Billeder"
+        android:textAlignment="center"
+        android:textColor="#E91E63"
+        android:textSize="24sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.479"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.53" />
 
     <Button
-        android:id="@+id/ButtonUploadImage"
-        android:layout_width="fill_parent"
+        android:id="@+id/takePicture"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/ImageNameEditText"
-        android:text="Upload image to Firebase Storage"
+        android:backgroundTint="#F44336"
+        android:backgroundTintMode="src_atop"
+        android:hapticFeedbackEnabled="false"
+        android:onClick="TakePicturePressed"
+        android:text="Tag Billede"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintHorizontal_bias="0.943"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.676" />
+        app:layout_constraintVertical_bias="0.964" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

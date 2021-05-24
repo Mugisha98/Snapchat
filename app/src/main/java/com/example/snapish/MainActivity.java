@@ -1,240 +1,178 @@
 package com.example.snapish;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-
-import android.app.ProgressDialog;
-import android.content.ContentResolver;
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.net.Uri;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.text.InputType;
 import android.view.View;
-import android.webkit.MimeTypeMap;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.Toast;
+import android.widget.ListView;
 
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.OnProgressListener;
-import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask;
-import java.io.IOException;
+import com.example.snapish.activity.MyProfileActivity;
+import com.example.snapish.activity.SnapOpenActivity;
+import com.example.snapish.adapter.MyAdapter;
+import com.example.snapish.model.Snap;
+import com.example.snapish.repository.Repository;
+import com.google.firebase.database.annotations.Nullable;
 
-public class MainActivity extends AppCompatActivity {
+import java.util.ArrayList;
+import java.util.List;
 
-    // Folder path for Firebase Storage.
-    String Storage_Path = "All_Image_Uploads/";
+public class MainActivity extends Activity implements IUpdateble,View.OnClickListener{
+    // skal have billeder fra db ind i denne liste
+    List<Snap> items = new ArrayList<>();
 
-    // Root Database Name for Firebase Database.
-    String Database_Path = "All_Image_Uploads_Database";
-
-    // Creating button.
-    Button ChooseButton, UploadButton;
-
-    // Creating EditText.
-    EditText ImageName ;
-
-    // Creating ImageView.
-    ImageView SelectImage;
-
-    // Creating URI.
-    Uri FilePathUri;
-
-    // Creating StorageReference and DatabaseReference object.
-    StorageReference storageReference;
-    DatabaseReference databaseReference;
-
-    // Image request code for onActivityResult() .
-    int Image_Request_Code = 7;
-
-    ProgressDialog progressDialog ;
+    ListView listView;
+    MyAdapter myAdapter;
+    Button profil;
+    //Initialize variable
 
     @Override
-    protected void onCreate(Bundle savedInstanceState)
-    {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Assign FirebaseStorage instance to storageReference.
-        storageReference = FirebaseStorage.getInstance().getReference();
+        //vi skal lave en forbindelse til listView her.
+        //R kompiler hele tiden, så f.eks hvergang der bliver lavet en knap rekompiler den klassen.
+        //Hver gang vi laver noget nyt, bliver et nyt nr(id) klar
+        listView = findViewById(R.id.listView1);
+        // vi impotere adapteren og vælger listen som parameter og "this" er context vi vælger som er den mest alm.
+        myAdapter = new MyAdapter(items, this);
 
-        // Assign FirebaseDatabase instance with root database name.
-        databaseReference = FirebaseDatabase.getInstance().getReference(Database_Path);
+        profil = findViewById(R.id.profil);
+        profil.setOnClickListener(this);
 
-        //Assign ID'S to button.
-        ChooseButton = (Button)findViewById(R.id.ButtonChooseImage);
-        UploadButton = (Button)findViewById(R.id.ButtonUploadImage);
+        listView.setAdapter(myAdapter);
+        Repository.repository().setup(this, items);
+        setupListView();
 
-        // Assign ID's to EditText.
-        ImageName = (EditText)findViewById(R.id.ImageNameEditText);
-
-        // Assign ID'S to image view.
-        SelectImage = (ImageView)findViewById(R.id.ShowImageView);
-
-        // Assigning Id to ProgressDialog.
-        progressDialog = new ProgressDialog(MainActivity.this);
-
-        SelectImage();
-        UploadImage();
 
     }
 
-    private void UploadImage()
-    {
-        // Adding click listener to Upload image button.
-        UploadButton.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View view)
-            {
-                // Calling method to upload selected image on Firebase storage.
-                UploadImageFileToFirebaseStorage();
-            }
-        });
-    }
-
-    private void SelectImage()
-    {
-        // Adding click listener to Choose image button.
-        ChooseButton.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View view)
-            {
-
-                // Creating intent.
-                Intent intent = new Intent();
-
-                // Setting intent type as image to select image from phone storage.
-                intent.setType("image/*");
-                intent.setAction(Intent.ACTION_GET_CONTENT);
-                startActivityForResult(Intent.createChooser(intent, "Please Select Image"), Image_Request_Code);
-
-            }
-        });
-    }
+    //_____________________________ METODER
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data)
-    {
+    //Denne knap skal fører dig til din profil.
+    public void onClick(View v) {
+        switch (v.getId()){
+            case R.id.profil:
+                //Intent er til for at vælge hvilken destination vi vil til, ved at declare this(objekt) fra en klasse(MyProfill)
+                //når vi kalder på startActivity, vil vi starte en ny aktivitet med den intent som vi lavede ovenover
+                startActivity(new Intent(this, MyProfileActivity.class));
+                break;
+        }
+
+    }
+
+//    //Denne knap skal fører dig til din profil.
+//    public void MyProfilPressed(View view){
+//        System.out.println("MyProfil Is Pressed");
+//        //Intent er til for at vælge hvilken destination vi vil til, ved at declare this(objekt) fra en klasse(MyProfill)
+//        Intent intent = new Intent(this, MyProfil.class);
+//        //når vi kalder på startActivity, vil vi starte en ny aktivitet med den intent som vi lavede ovenover
+//        startActivity(intent);
+//    }
+
+    //Denne knap skal fører dig til din tagbillede.
+    public void TakePicturePressed(View view){
+        // vi laver her en Intent med en action, så vi kan åbne cameraet og tage et billede som skal retunere det.
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        try{
+            startActivityForResult(takePictureIntent, 1);
+        } catch (ActivityNotFoundException e){
+            System.out.println("error: du kan ikke tage billede pt");
+        }
+    }
+
+//____________________________________________________________________
+
+
+
+    private void setupListView(){
+        //når man klikker vil vi gerne have den tager et "item" med et id fra listviewet fra db
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+                //Her opretter vi et opbjekt med postisiton fra items
+                Snap tempSnap = items.get(position);
+
+                // her bliver der oprettet et Intet, hvor vi skal bruge
+                Intent snapIntent = new Intent(MainActivity.this, SnapOpenActivity.class);
+
+                //extra tildeler udvidet data til intent og navn giver "id" som vi benytter i snapopen klassen.
+                snapIntent.putExtra("id", tempSnap.getId());
+
+                startActivity(snapIntent);
+
+
+            }
+        });
+    }
+
+
+    //________________ Ting til at capture picture og indsætte text
+    // Skal måske flyttes til repo
+
+
+    @Override
+    // denne skal tjekke om der er en requestCode for en aktivitet som er startet
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
-        if (requestCode == Image_Request_Code && resultCode == RESULT_OK && data != null && data.getData() != null)
-        {
-            FilePathUri = data.getData();
-            try
-            {
-                // Getting selected image into Bitmap.
-                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), FilePathUri);
-
-                // Setting up bitmap selected image into ImageView.
-                SelectImage.setImageBitmap(bitmap);
-
-                // After selecting image change choose button above text.
-                ChooseButton.setText("Image Selected");
-
-            }
-            catch (IOException e)
-            {
-                e.printStackTrace();
-            }
+        //hvis requestCode er den samme, så kan vi kalde insertTest metoden
+        if (requestCode == 1) {
+            insertText((Bitmap)data.getExtras().get("data"));
         }
     }
 
-    // Creating Method to get the selected image file Extension from File Path URI.
-    public String GetFileExtension(Uri uri)
-    {
-        ContentResolver contentResolver = getContentResolver();
+    // denne metode er til for at lave tekst på et billede
+    public void insertText(Bitmap image){
+        //Laver pop op
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Indsæt text");
 
-        MimeTypeMap mimeTypeMap = MimeTypeMap.getSingleton();
+        final EditText input = new EditText(this);
+        input.setInputType(InputType.TYPE_CLASS_TEXT);
+        builder.setView(input);
 
-        // Returning the file Extension.
-        return mimeTypeMap.getExtensionFromMimeType(contentResolver.getType(uri)) ;
+        builder.setPositiveButton("OK", ((dialog, which) -> insertTextToBitmap(image, input.getText().toString())));
+        builder.setNegativeButton("Annuller", (dialog, which) -> dialog.cancel());
+
+        builder.show();
+
     }
 
-    // Creating UploadImageFileToFirebaseStorage method to upload image on storage.
-    public void UploadImageFileToFirebaseStorage()
-    {
-
-        // Checking whether FilePathUri Is empty or not.
-        if (FilePathUri != null)
-        {
-
-            // Setting progressDialog Title.
-            progressDialog.setTitle("Image is Uploading...");
-
-            // Showing progressDialog.
-            progressDialog.show();
-
-            // Creating second StorageReference.
-            StorageReference storageReference2nd = storageReference.child(Storage_Path + System.currentTimeMillis() + "." + GetFileExtension(FilePathUri));
-
-            // Adding addOnSuccessListener to second StorageReference.
-            storageReference2nd.putFile(FilePathUri)
-                    .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>()
-                    {
-                        @Override
-                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot)
-                        {
-
-                            // Getting image name from EditText and store into string variable.
-                            String TempImageName = ImageName.getText().toString().trim();
-
-                            // Hiding the progressDialog after done uploading.
-                            progressDialog.dismiss();
-
-                            // Showing toast message after done uploading.
-                            Toast.makeText(getApplicationContext(), "Image Uploaded Successfully ", Toast.LENGTH_LONG).show();
-
-                            @SuppressWarnings("VisibleForTests")
-                            ImageUploadInfo imageUploadInfo = new ImageUploadInfo(TempImageName, taskSnapshot.getUploadSessionUri().toString());
-
-                            // Getting image upload ID.
-                            String ImageUploadId = databaseReference.push().getKey();
-
-                            // Adding image upload id s child element into databaseReference.
-                            databaseReference.child(ImageUploadId).setValue(imageUploadInfo);
-
-                            System.out.println("w4e: "+ImageUploadId);
-                        }
-                    })
-                    // If something goes wrong.
-                    .addOnFailureListener(new OnFailureListener()
-                    {
-                        @Override
-                        public void onFailure(@NonNull Exception exception)
-                        {
-                            // Hiding the progressDialog.
-                            progressDialog.dismiss();
-
-                            // Showing exception error message.
-                            Toast.makeText(MainActivity.this, exception.getMessage(), Toast.LENGTH_LONG).show();
-                        }
-                    })
-
-                    // On progress change upload time.
-                    .addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>()
-                    {
-                        @Override
-                        public void onProgress(UploadTask.TaskSnapshot taskSnapshot)
-                        {
-
-                            // Setting progressDialog Title.
-                            progressDialog.setTitle("Image is Uploading...");
-
-                        }
-                    });
+    public void insertTextToBitmap(Bitmap image, String gText) {
+        Bitmap.Config bitmapConfig = image.getConfig();
+        // set default bitmap config if none
+        if(bitmapConfig == null) {
+            bitmapConfig = Bitmap.Config.ARGB_8888;
         }
-        else
-            {
-                Toast.makeText(MainActivity.this, "Please Select Image or Add Image Name", Toast.LENGTH_LONG).show();
-            }
+        // resource bitmaps are imutable,
+        // so we need to convert it to mutable one
+        image = image.copy(bitmapConfig, true);
+        Canvas canvas = new Canvas(image);
+        Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);// new antialised Paint
+        paint.setColor(Color.rgb(161, 161, 161));
+        paint.setTextSize((int) (20)); // text size in pixels
+        paint.setShadowLayer(1f, 0f, 1f, Color.RED); // text shadow
+        canvas.drawText(gText, 10, 100, paint);
+        Repository.repository().uploadBitmap(image, gText);
+    }
+
+    //_________________________________________________
+
+    @Override
+    public void update(Object o) {
+        myAdapter.notifyDataSetChanged();
     }
 }
