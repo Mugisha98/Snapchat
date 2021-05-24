@@ -7,23 +7,10 @@ public class Snap {
     private String text;
     private Bitmap snapBitmap;
 
-    public Snap(String id, String text, Bitmap snapBitmap) {
-        this.id = id;
-        this.text = text;
-        this.snapBitmap = snapBitmap;
-    }
-
-    public Snap(String id, String text) {
-        this.id = id;
-        this.text = text;
-    }
-
     public Snap(String id) {
         this.id = id;
     }
 
-    public Snap() {
-    }
 
     public String getId() {
         return id;

@@ -12,7 +12,6 @@ import com.example.snapish.ITaskListener;
 import com.example.snapish.R;
 import com.example.snapish.model.Snap;
 import com.example.snapish.repository.Repository;
-import com.google.firebase.database.core.Repo;
 
 public class SnapOpenActivity extends AppCompatActivity implements ITaskListener {
 
@@ -23,9 +22,9 @@ public class SnapOpenActivity extends AppCompatActivity implements ITaskListener
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_snap_open);
-        //her skal vi finde og dl vores image fra snap_open xml
         imageViewSnap = findViewById(R.id.imageViewSnap);
-        //Intent er til for at vælge hvilken destination vi vil til, ved at declare this(objekt) fra en klasse(MyProfill)
+
+        // Intent is for choosing a class destination and to start an activity
         Intent intent = getIntent();
 
         snap = new Snap(intent.getStringExtra("id"));
@@ -34,7 +33,7 @@ public class SnapOpenActivity extends AppCompatActivity implements ITaskListener
         Repository.repository().downloadBitmap(snap.getId(), this);
     }
 
-    // skal "ødelægge" det billede(objekt) som vi åbner (snap)
+    // Image is deleted after opening
     @Override
     protected void onDestroy() {
         super.onDestroy();

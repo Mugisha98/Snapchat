@@ -28,104 +28,66 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends Activity implements IUpdateble,View.OnClickListener{
-    // skal have billeder fra db ind i denne liste
+    //Storing snaps inside the Array list
     List<Snap> items = new ArrayList<>();
 
+    //Initializing variables
     ListView listView;
     MyAdapter myAdapter;
-    Button profil;
-    //Initialize variable
+    Button profileBtn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        //vi skal lave en forbindelse til listView her.
-        //R kompiler hele tiden, så f.eks hvergang der bliver lavet en knap rekompiler den klassen.
-        //Hver gang vi laver noget nyt, bliver et nyt nr(id) klar
         listView = findViewById(R.id.listView1);
-        // vi impotere adapteren og vælger listen som parameter og "this" er context vi vælger som er den mest alm.
         myAdapter = new MyAdapter(items, this);
 
-        profil = findViewById(R.id.profil);
-        profil.setOnClickListener(this);
+        profileBtn = findViewById(R.id.profil);
+        profileBtn.setOnClickListener(this);
 
         listView.setAdapter(myAdapter);
         Repository.repository().setup(this, items);
         setupListView();
-
-
     }
-
-    //_____________________________ METODER
-
+    // onclick = profile destination
     @Override
-    //Denne knap skal fører dig til din profil.
     public void onClick(View v) {
         switch (v.getId()){
             case R.id.profil:
-                //Intent er til for at vælge hvilken destination vi vil til, ved at declare this(objekt) fra en klasse(MyProfill)
-                //når vi kalder på startActivity, vil vi starte en ny aktivitet med den intent som vi lavede ovenover
+                //Starting an activity and defining the destination by using intent
                 startActivity(new Intent(this, MyProfileActivity.class));
                 break;
         }
-
     }
-
-//    //Denne knap skal fører dig til din profil.
-//    public void MyProfilPressed(View view){
-//        System.out.println("MyProfil Is Pressed");
-//        //Intent er til for at vælge hvilken destination vi vil til, ved at declare this(objekt) fra en klasse(MyProfill)
-//        Intent intent = new Intent(this, MyProfil.class);
-//        //når vi kalder på startActivity, vil vi starte en ny aktivitet med den intent som vi lavede ovenover
-//        startActivity(intent);
-//    }
-
-    //Denne knap skal fører dig til din tagbillede.
+    //open camera
     public void TakePicturePressed(View view){
-        // vi laver her en Intent med en action, så vi kan åbne cameraet og tage et billede som skal retunere det.
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         try{
             startActivityForResult(takePictureIntent, 1);
         } catch (ActivityNotFoundException e){
-            System.out.println("error: du kan ikke tage billede pt");
+            System.out.println("error: unable to open camera");
         }
     }
-
-//____________________________________________________________________
-
-
-
+    // when listView item is clicked, id is used to find the item in database
     private void setupListView(){
-        //når man klikker vil vi gerne have den tager et "item" med et id fra listviewet fra db
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
-                //Her opretter vi et opbjekt med postisiton fra items
+                //creating an object with position from items
                 Snap tempSnap = items.get(position);
-
-                // her bliver der oprettet et Intet, hvor vi skal bruge
+                //creating an intent and defining destination
                 Intent snapIntent = new Intent(MainActivity.this, SnapOpenActivity.class);
-
-                //extra tildeler udvidet data til intent og navn giver "id" som vi benytter i snapopen klassen.
                 snapIntent.putExtra("id", tempSnap.getId());
-
                 startActivity(snapIntent);
-
-
             }
         });
     }
 
-
-    //________________ Ting til at capture picture og indsætte text
-    // Skal måske flyttes til repo
-
-
+    //Checking if insertText is possible via requestCode
     @Override
-    // denne skal tjekke om der er en requestCode for en aktivitet som er startet
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         //hvis requestCode er den samme, så kan vi kalde insertTest metoden
@@ -134,21 +96,19 @@ public class MainActivity extends Activity implements IUpdateble,View.OnClickLis
         }
     }
 
-    // denne metode er til for at lave tekst på et billede
+    // Inserting text on image
     public void insertText(Bitmap image){
-        //Laver pop op
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Indsæt text");
+        builder.setTitle("Insert text");
 
         final EditText input = new EditText(this);
         input.setInputType(InputType.TYPE_CLASS_TEXT);
         builder.setView(input);
 
         builder.setPositiveButton("OK", ((dialog, which) -> insertTextToBitmap(image, input.getText().toString())));
-        builder.setNegativeButton("Annuller", (dialog, which) -> dialog.cancel());
+        builder.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
 
         builder.show();
-
     }
 
     public void insertTextToBitmap(Bitmap image, String gText) {
@@ -161,21 +121,15 @@ public class MainActivity extends Activity implements IUpdateble,View.OnClickLis
         // so we need to convert it to mutable one
         image = image.copy(bitmapConfig, true);
         Canvas canvas = new Canvas(image);
-        Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);// new antialised Paint
-        paint.setColor(Color.rgb(161, 161, 161));
-        paint.setTextSize((int) (20)); // text size in pixels
-        paint.setShadowLayer(1f, 0f, 1f, Color.RED); // text shadow
+        Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);// new paint
+        paint.setColor(Color.BLACK);
+        paint.setTextSize((int) (16)); // text size in pixels
         canvas.drawText(gText, 10, 100, paint);
         Repository.repository().uploadBitmap(image, gText);
     }
-
-    //_________________________________________________
 
     @Override
     public void update(Object o) {
         myAdapter.notifyDataSetChanged();
     }
 }
-
-
-// Mo push

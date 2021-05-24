@@ -10,38 +10,38 @@ import android.widget.TextView;
 
 import com.example.snapish.R;
 import com.example.snapish.model.Snap;
-
 import java.util.List;
 
 public class MyAdapter extends BaseAdapter {
 
-    private List<Snap> items; // denne holder på data
-    private LayoutInflater layoutInflater; // kan "inflate" layout filer. den kan tage XML filen og lave den om til et java objekt
+    //Storing the data of the object snap
+    private List<Snap> items;
+    //"inflate" layout file."Converts Xml files to java objects"
+    private LayoutInflater layoutInflater;
 
     public MyAdapter(List<Snap> items, Context context) {
         this.items = items;
         layoutInflater = LayoutInflater.from(context);
-
     }
 
+    // getting the size of the items
     @Override
-    // vi skal fortælle hvor mange rækker der skal være
     public int getCount() {
         return items.size();
     }
-
+    //getting the specific item
     @Override
     public Object getItem(int i) {
         return items.get(i);
     }
-
+    // finding the id of each item
     @Override
     public long getItemId(int i) {
         return i;
     }
 
+    //combining all the above methods to a view
     @Override
-    //for hver række vil vi få et layout som vi bestemmer hvad der skal ske med
     public View getView(int i, View view, ViewGroup viewGroup) {
 
         if(view == null){
@@ -50,7 +50,7 @@ public class MyAdapter extends BaseAdapter {
         LinearLayout linearLayout = (LinearLayout)view;
         TextView textView = view.findViewById(R.id.textView1);
         if(textView != null) {
-            textView.setText(items.get(i).getId()); //  vil forbinde til item listen
+            textView.setText(items.get(i).getId()); // adding the items to the list view in "my_row.xml"
         }
         return linearLayout;
     }
