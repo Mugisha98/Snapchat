@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "862623842577",
+    "project_id": "snapish-19120",
+    "storage_bucket": "snapish-19120.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:862623842577:android:15b3232ff0f5d005a94cb0",
+        "android_client_info": {
+          "package_name": "com.example.snapIsh"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "862623842577-7liah0in4bai8bs0351gq6k2cbhpml6u.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCH6Fm-XnXNtV2iaSxwtp8N8CBUMutU0F0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "862623842577-7liah0in4bai8bs0351gq6k2cbhpml6u.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
